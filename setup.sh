@@ -54,6 +54,8 @@ if ! command -v ghostty &> /dev/null; then
     curl -LO "$GHOSTTY_DEB_URL"
     sudo dpkg -i "$GHOSTTY_DEB_FILE"
     rm "$GHOSTTY_DEB_FILE"
+    # install missing dependencies - just to be sure
+    sudo apt install -f -y
 fi
 
 # Add or update the Ghostty theme setting
