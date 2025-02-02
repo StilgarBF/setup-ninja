@@ -16,7 +16,8 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "Installing Oh My Zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     # set default shell to zsh
-    chsh -s $(which zsh)
+    echo "Changing default shell to zsh (you may need to enter your password)..."
+    chsh -s $(which zsh) || echo "Run 'chsh -s $(which zsh)' manually if needed."
 fi
 
 # Install Powerline Fonts for Agnoster Theme
