@@ -3,26 +3,50 @@
 # Exit on errors
 set -e
 
+# Detect terminal color support
+if [[ "$COLORTERM" == "truecolor" ]] || [[ "$COLORTERM" == "24bit" ]]; then
+    # True color (24-bit)
+    RED='\e[38;2;255;0;0m'
+    GREEN='\e[38;2;0;255;0m'
+    YELLOW='\e[38;2;255;255;0m'
+    BLUE='\e[38;2;0;0;255m'
+    CYAN='\e[38;2;0;255;255m'
+    BOLD='\e[1m'
+    RESET='\e[0m'
+elif [[ "$(tput colors)" -ge 256 ]]; then
+    # 256 color fallback
+    RED='\e[31m'
+    GREEN='\e[32m'
+    YELLOW='\e[33m'
+    RESET='\e[0m'
+else
+    # Standard Linux terminal (basic colors)
+    RED=$(tput setaf 1)
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    RESET=$(tput sgr0)
+fi
+
 # Update and install dependencies
-echo "Updating package list..."
+printf "${GREEN}Updating package list...${RESET}\n"
 sudo apt update -y
 sudo apt upgrade -y
 
-echo "Installing necessary tools..."
+printf "${GREEN}Installing necessary tools...${RESET}\n"
 sudo apt install -y zsh git curl wget fzf build-essential
 
 # Install Oh My Zsh
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo "Installing Oh My Zsh..."
+    printf "${GREEN}Installing Oh My Zsh...${RESET}\n"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     # set default shell to zsh
-    echo "Changing default shell to zsh (you may need to enter your password)..."
-    chsh -s $(which zsh) || echo "Run 'chsh -s $(which zsh)' manually if needed."
+    printf "${GREEN}Changing default shell to zsh (you may need to enter your password)...${RESET}\n"
+    chsh -s $(which zsh) || printf "${YELLOW}Run 'chsh -s $(which zsh)' manually if needed.${RESET}\n"
 fi
 
 # Install Powerline Fonts for Agnoster Theme
 if [ ! -d "$HOME/.local/share/fonts" ]; then
-    echo "Installing Powerline fonts..."
+    printf "${GREEN}Installing Powerline fonts...${RESET}\n"
     git clone https://github.com/powerline/fonts.git --depth=1
     cd fonts
     ./install.sh
@@ -31,19 +55,19 @@ if [ ! -d "$HOME/.local/share/fonts" ]; then
 fi
 
 # Set Zsh theme to Agnoster
-echo "Configuring Zsh..."
+printf "${GREEN}Configuring Zsh...${RESET}\n"
 sed -i 's/^ZSH_THEME=.*/ZSH_THEME="agnoster"/' ~/.zshrc
 
 # Install Atuin for shell history
 if ! command -v atuin &> /dev/null; then
-    echo "Installing Atuin..."
+    printf "${GREEN}Installing Atuin...${RESET}\n"
     curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
     echo 'eval "$(atuin init zsh)"' >> ~/.zshrc
 fi
 
 # Install Ghostty
 if ! command -v ghostty &> /dev/null; then
-    echo "Installing Ghostty..."
+    printf "${GREEN}Installing Ghostty...${RESET}\n"
     source /etc/os-release
     ARCH=$(dpkg --print-architecture)
     GHOSTTY_DEB_URL=$(
@@ -66,25 +90,25 @@ if grep -q "^theme = " "$CONFIG_FILE"; then
     sed -i 's/^theme = .*/theme = Monokai Classic/' "$CONFIG_FILE"
 else
     # Add the theme setting if it doesn't exist
-    echo "theme = Monokai Classic" >> "$CONFIG_FILE"
+    printf "theme = Monokai Classic" >> "$CONFIG_FILE\n"
 fi
 
 # Install Superfile
 if ! command -v superfile &> /dev/null; then
-    echo "Installing Superfile..."
+    printf "${GREEN}Installing Superfile...${RESET}\n"
     bash -c "$(curl -sLo- https://superfile.netlify.app/install.sh)"
 fi
 
 # Install glances (Alternative to htop)
 if ! command -v glances &> /dev/null; then
-    echo "Installing glances..."
+    printf "${GREEN}Installing glances...${RESET}\n"
     sudo apt install glances -y
     echo "alias htop='glances'" >> ~/.zshrc
 fi
 
 # Install Lazygit
 if ! command -v lazygit &> /dev/null; then
-    echo "Installing Lazygit..."
+    printf "${GREEN}Installing Lazygit...${RESET}\n"
     LAZYGIT_VERSION=$(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/v//')
     curl -Lo lazygit.tar.gz https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz
     tar xzf lazygit.tar.gz lazygit
@@ -93,7 +117,7 @@ if ! command -v lazygit &> /dev/null; then
 fi
 
 # Apply changes
-echo "Applying changes..."
+printf "${GREEN}Applying changes...${RESET}\n"
 zsh -c "source ~/.zshrc"
 
-echo "Setup complete! Restart your shell to apply changes."
+printf "${GREEN}Setup complete! Restart your shell to apply changes.${RESET}\n"
