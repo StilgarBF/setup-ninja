@@ -121,3 +121,4 @@ printf "${GREEN}Applying changes...${RESET}\n"
 zsh -c "source ~/.zshrc"
 
 printf "${GREEN}Setup complete! Restart your shell to apply changes.${RESET}\n"
+printf "${YELLOW}You may have to run \"echo 'eval \"\$(atuin init zsh)\"' >> ~/.zshrc\" in ghostty manually again.${RESET}\n"
